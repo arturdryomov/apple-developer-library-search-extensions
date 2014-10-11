@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+
+  "name": "Mac Developer Library Search",
+  "description": "Adds an “md” omnibox command for the Mac Developer Library.",
+  "version": "0.1.0",
+
+  "permissions": [
+    "tabs",
+    "https://developer.apple.com/library/prerelease/mac/*/"
+  ],
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "128": "icons/128.png",
+    "256": "icons/256.png"
+  },
+  "omnibox": {
+    "keyword": "md"
+  },
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "configuration.js",
+      "omnibox.js"
+    ]
+  }
+}
