@@ -3,7 +3,10 @@
 ios/omnibox.js
 mac/omnibox.js
 
+# Keys
+
+*.pem
+
 # Packages
 
-ios.zip
-mac.zip
+*.zip
