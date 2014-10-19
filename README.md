@@ -11,10 +11,10 @@ for the iOS Developer Library and the Mac Developer Library respectively.
   $ make environment
   ```
 
-* Open Google Chrome.
-* Settings → Extensions.
-* Check the “Developer mode” option.
-* Choose “Load unpacked extension”.
-* Select `ios` or `mac` directory.
+2. Open Google Chrome.
+3. Settings → Extensions.
+4. Check the “Developer mode” option.
+5. Choose “Load unpacked extension”.
+6. Select `ios` or `mac` directory.
 
 The extension will be available from the Chrome Web Store soon.
