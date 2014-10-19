@@ -14,11 +14,11 @@ var library = {
 };
 
 
-chrome.omnibox.setDefaultSuggestion({
-  description: SUGGESTION.default
-});
+(function init() {
+  downloadLibrary();
+})();
 
-chrome.omnibox.onInputStarted.addListener(function() {
+function downloadLibrary() {
   if (library.catalogue) {
     return;
   }
@@ -36,6 +36,14 @@ chrome.omnibox.onInputStarted.addListener(function() {
 
   libraryRequest.open("GET", LIBRARY_LOCATION + LIBRARY.navigation + LIBRARY.catalogue);
   libraryRequest.send();
+}
+
+chrome.omnibox.setDefaultSuggestion({
+  description: SUGGESTION.default
+});
+
+chrome.omnibox.onInputStarted.addListener(function() {
+  downloadLibrary();
 });
 
 chrome.omnibox.onInputChanged.addListener(function(searchQuery, sendSuggestions) {
@@ -75,6 +83,6 @@ chrome.omnibox.onInputEntered.addListener(function(searchQuery) {
   });
 
   chrome.tabs.getSelected(null, function(tab) {
-    chrome.tabs.update(tab.id, { url: searchUrl});
+    chrome.tabs.update(tab.id, {url: searchUrl});
   });
 });
