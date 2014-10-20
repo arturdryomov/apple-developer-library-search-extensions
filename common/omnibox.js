@@ -11,16 +11,11 @@ var LIBRARY = {
   navigation: "navigation/",
   search: "search/",
 
-  catalogue: "library.json"
+  library: "library.json"
 };
 
 
-var library = {
-  catalogue: null,
-
-  documentNamePosition: 0,
-  documentPathPosition: 0
-};
+var library = null;
 
 
 function highlightText(text) {
@@ -34,7 +29,7 @@ function highlightText(text) {
 
 
 function downloadLibrary() {
-  if (library.catalogue) {
+  if (library) {
     return;
   }
 
@@ -42,16 +37,13 @@ function downloadLibrary() {
 
   libraryRequest.onreadystatechange = function() {
     if ((this.readyState == this.DONE) && (this.status == 200)) {
-      library.catalogue = JSON.parse(this.responseText);
-
-      library.documentNamePosition = library.catalogue.columns.name;
-      library.documentPathPosition = library.catalogue.columns.url;
+      library = JSON.parse(this.responseText);
 
       openLibrary();
     }
   };
 
-  libraryRequest.open("GET", LIBRARY_LOCATION + LIBRARY.navigation + LIBRARY.catalogue);
+  libraryRequest.open("GET", LIBRARY_LOCATION + LIBRARY.navigation + LIBRARY.library);
   libraryRequest.send();
 }
 
@@ -72,7 +64,7 @@ function openLibrary() {
       description: SUGGESTION.active
     });
 
-    if (!library.catalogue) {
+    if (!library) {
       return;
     }
 
@@ -84,15 +76,16 @@ function openLibrary() {
 
     var suggestions = [];
 
-    for (var documentPosition = 0; documentPosition < library.catalogue.documents.length; documentPosition++) {
+    for (var documentPosition = 0; documentPosition < library.documents.length; documentPosition++) {
       if (suggestions.length >= SUGGESTIONS_COUNT) {
         break;
       }
 
-      var document = library.catalogue.documents[documentPosition];
+      var document = library.documents[documentPosition];
 
-      var documentName = document[library.documentNamePosition];
-      var documentPath = document[library.documentPathPosition];
+      var documentName = document[library.columns.name];
+      var documentPath = document[library.columns.url];
+      var documentType = document[library.columns.type];
 
       var searchQueryStartPosition = documentName.toLowerCase().indexOf(searchQuery.toLowerCase(), 0);
       var searchQueryFinishPosition = searchQueryStartPosition + searchQuery.length;
@@ -109,13 +102,24 @@ function openLibrary() {
 
       suggestions.push({
         content: LIBRARY_LOCATION + LIBRARY.navigation + documentPath,
-        description: suggestion
+        description: suggestion,
+        type: documentType
       });
     }
 
+    suggestions.sort(function(leftSuggestion, rightSuggestion) {
+      var leftSuggestionOrder = findSuggestionOrder(leftSuggestion.type);
+      var rightSuggestionOrder = findSuggestionOrder(rightSuggestion.type);
+
+      return leftSuggestionOrder - rightSuggestionOrder;
+    });
+
+    suggestions.forEach(function(suggestion) {
+      delete suggestion.type;
+    });
+
     sendSuggestions(suggestions);
   });
-
 
   chrome.omnibox.onInputEntered.addListener(function(searchQuery) {
     if (searchQuery.indexOf("https://") == -1) {
@@ -126,4 +130,13 @@ function openLibrary() {
       chrome.tabs.update(tab.id, {url: searchQuery});
     });
   });
+}
+
+
+function findSuggestionOrder(suggestionType) {
+  var topics = library.topics[0].contents;
+
+  return topics.filter(function(topic) {
+    return topic.key == suggestionType;
+  })[0].sortOrder;
 }
