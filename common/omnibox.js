@@ -1,9 +1,10 @@
+var SUGGESTIONS_COUNT = 20;
+
+
 var SUGGESTION = {
-  default: "Loading" + " " + LIBRARY_NAME + " " + "information...",
+  passive: "Loading" + " " + LIBRARY_NAME + " " + "information...",
   active: "Search" + " " + LIBRARY_NAME + " " + "for" + " " + highlightText("%s")
 };
-
-var SUGGESTIONS_COUNT = 20;
 
 
 var LIBRARY = {
@@ -56,7 +57,7 @@ function downloadLibrary() {
 
 
 chrome.omnibox.setDefaultSuggestion({
-  description: SUGGESTION.default
+  description: SUGGESTION.passive
 });
 
 
@@ -94,18 +95,20 @@ function openLibrary() {
       var searchQueryStartPosition = documentName.toLowerCase().indexOf(searchQuery.toLowerCase(), 0);
       var searchQueryFinishPosition = searchQueryStartPosition + searchQuery.length;
 
-      if (searchQueryStartPosition != -1) {
-        var suggestion = "";
-
-        suggestion += documentName.substring(0, searchQueryStartPosition);
-        suggestion += highlightText(documentName.substring(searchQueryStartPosition, searchQueryFinishPosition));
-        suggestion += documentName.substring(searchQueryFinishPosition, documentName.length);
-
-        suggestions.push({
-          content: LIBRARY_LOCATION + LIBRARY.navigation + documentPath,
-          description: suggestion
-        });
+      if (searchQueryStartPosition == -1) {
+        continue;
       }
+
+      var suggestion = "";
+
+      suggestion += documentName.substring(0, searchQueryStartPosition);
+      suggestion += highlightText(documentName.substring(searchQueryStartPosition, searchQueryFinishPosition));
+      suggestion += documentName.substring(searchQueryFinishPosition, documentName.length);
+
+      suggestions.push({
+        content: LIBRARY_LOCATION + LIBRARY.navigation + documentPath,
+        description: suggestion
+      });
     }
 
     sendSuggestions(suggestions);
