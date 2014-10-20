@@ -76,6 +76,8 @@ function openLibrary() {
       return;
     }
 
+    searchQuery = searchQuery.trim();
+
     if (!searchQuery) {
       return;
     }
