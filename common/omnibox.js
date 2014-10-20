@@ -1,3 +1,11 @@
+var SUGGESTION = {
+  default: "Loading" + " " + LIBRARY_NAME + " " + "information...",
+  active: "Search" + " " + LIBRARY_NAME + " " + "for" + " " + highlightText("%s")
+};
+
+var SUGGESTIONS_COUNT = 20;
+
+
 var LIBRARY = {
   navigation: "navigation/",
   search: "search/",
@@ -14,9 +22,15 @@ var library = {
 };
 
 
+function highlightText(text) {
+  return "<match>" + text + "</match>";
+}
+
+
 (function init() {
   downloadLibrary();
 })();
+
 
 function downloadLibrary() {
   if (library.catalogue) {
@@ -31,6 +45,8 @@ function downloadLibrary() {
 
       library.documentNamePosition = library.catalogue.columns.name;
       library.documentPathPosition = library.catalogue.columns.url;
+
+      openLibrary();
     }
   };
 
@@ -38,51 +54,71 @@ function downloadLibrary() {
   libraryRequest.send();
 }
 
+
 chrome.omnibox.setDefaultSuggestion({
   description: SUGGESTION.default
 });
+
 
 chrome.omnibox.onInputStarted.addListener(function() {
   downloadLibrary();
 });
 
-chrome.omnibox.onInputChanged.addListener(function(searchQuery, sendSuggestions) {
-  chrome.omnibox.setDefaultSuggestion({
-    description: SUGGESTION.active
-  });
 
-  if (!library.catalogue) {
-    return;
-  }
+function openLibrary() {
+  chrome.omnibox.onInputChanged.addListener(function(searchQuery, sendSuggestions) {
+    chrome.omnibox.setDefaultSuggestion({
+      description: SUGGESTION.active
+    });
 
-  if (!searchQuery) {
-    return;
-  }
-
-  var suggestions = [];
-
-  library.catalogue.documents.forEach(function(document) {
-    if (document[library.documentNamePosition].toLowerCase().indexOf(searchQuery.toLowerCase(), 0) != -1) {
-      suggestions.push({
-        content: document[library.documentNamePosition],
-        description: document[library.documentNamePosition]
-      });
+    if (!library.catalogue) {
+      return;
     }
-  });
 
-  sendSuggestions(suggestions);
-});
-
-chrome.omnibox.onInputEntered.addListener(function(searchQuery) {
-  var searchUrl = LIBRARY_LOCATION+ LIBRARY.search + "?q=" + searchQuery;
-
-  library.catalogue.documents.forEach(function(document) {
-    if (document[library.documentNamePosition] == searchQuery) {
-      searchUrl = LIBRARY_LOCATION + LIBRARY.navigation + document[library.documentPathPosition];
+    if (!searchQuery) {
+      return;
     }
+
+    var suggestions = [];
+
+    for (var documentPosition = 0; documentPosition < library.catalogue.documents.length; documentPosition++) {
+      if (suggestions.length >= SUGGESTIONS_COUNT) {
+        break;
+      }
+
+      var document = library.catalogue.documents[documentPosition];
+
+      var documentName = document[library.documentNamePosition];
+      var documentPath = document[library.documentPathPosition];
+
+      var searchQueryStartPosition = documentName.toLowerCase().indexOf(searchQuery.toLowerCase(), 0);
+      var searchQueryFinishPosition = searchQueryStartPosition + searchQuery.length;
+
+      if (searchQueryStartPosition != -1) {
+        var suggestion = "";
+
+        suggestion += documentName.substring(0, searchQueryStartPosition);
+        suggestion += highlightText(documentName.substring(searchQueryStartPosition, searchQueryFinishPosition));
+        suggestion += documentName.substring(searchQueryFinishPosition, documentName.length);
+
+        suggestions.push({
+          content: LIBRARY_LOCATION + LIBRARY.navigation + documentPath,
+          description: suggestion
+        });
+      }
+    }
+
+    sendSuggestions(suggestions);
   });
 
-  chrome.tabs.getSelected(null, function(tab) {
-    chrome.tabs.update(tab.id, {url: searchUrl});
+
+  chrome.omnibox.onInputEntered.addListener(function(searchQuery) {
+    if (searchQuery.indexOf("https://") == -1) {
+      searchQuery = LIBRARY_LOCATION + LIBRARY.search + "?q=" + searchQuery;
+    }
+
+    chrome.tabs.getSelected(null, function(tab) {
+      chrome.tabs.update(tab.id, {url: searchQuery});
+    });
   });
-});
+}
