@@ -59,11 +59,11 @@ chrome.omnibox.onInputStarted.addListener(function() {
 
 
 function openLibrary() {
-  chrome.omnibox.onInputChanged.addListener(function(searchQuery, sendSuggestions) {
-    chrome.omnibox.setDefaultSuggestion({
-      description: SUGGESTION.active
-    });
+  chrome.omnibox.setDefaultSuggestion({
+    description: SUGGESTION.active
+  });
 
+  chrome.omnibox.onInputChanged.addListener(function(searchQuery, sendSuggestions) {
     if (!library) {
       return;
     }
