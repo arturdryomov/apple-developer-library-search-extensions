@@ -1,10 +1,7 @@
 var SUGGESTIONS_COUNT = 20;
 
 
-var SUGGESTION = {
-  passive: "Loading" + " " + LIBRARY_NAME + " " + "information...",
-  active: "Search" + " " + LIBRARY_NAME + " " + "for" + " " + highlightText("%s")
-};
+var suggestion = "Search" + " " + LIBRARY_NAME + " " + "for" + " " + highlightText("%s");
 
 
 var LIBRARY = {
@@ -48,11 +45,6 @@ function downloadLibrary() {
 }
 
 
-chrome.omnibox.setDefaultSuggestion({
-  description: SUGGESTION.passive
-});
-
-
 chrome.omnibox.onInputStarted.addListener(function() {
   downloadLibrary();
 });
@@ -60,7 +52,7 @@ chrome.omnibox.onInputStarted.addListener(function() {
 
 function openLibrary() {
   chrome.omnibox.setDefaultSuggestion({
-    description: SUGGESTION.active
+    description: suggestion
   });
 
   chrome.omnibox.onInputChanged.addListener(function(searchQuery, sendSuggestions) {
