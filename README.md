@@ -3,18 +3,6 @@
 Google Chrome extensions adding “id” and “md” omnibox commands
 for the iOS Developer Library and the Mac Developer Library respectively.
 
-## Install
+Extensions will be available in the Chrome Web Store soon.
 
-1. Prepare extensions.
-
-  ```
-  $ make environment
-  ```
-
-2. Open Google Chrome.
-3. Settings → Extensions.
-4. Check the “Developer mode” option.
-5. Choose “Load unpacked extension”.
-6. Select `ios` or `mac` directory.
-
-The extension will be available from the Chrome Web Store soon.
+![Mac screenshot](https://cloud.githubusercontent.com/assets/200401/4750341/46f45a66-5a91-11e4-8639-05eca4464fc7.png)
