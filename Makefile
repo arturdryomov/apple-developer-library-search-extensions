@@ -3,8 +3,8 @@ environment:
 	@ln -f common/omnibox.js mac/omnibox.js
 
 packages: environment
-	@zip ios.zip ios/*
-	@zip mac.zip mac/*
+	@zip -r ios.zip ios/*
+	@zip -r mac.zip mac/*
 
 clean-environment:
 	@rm -f ios/omnibox.js

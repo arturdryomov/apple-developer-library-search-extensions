@@ -3,7 +3,7 @@
 
   "name": "Mac Developer Library Search",
   "description": "Adds an “md” omnibox command for the Mac Developer Library.",
-  "version": "0.1.0",
+  "version": "0.1.1",
 
   "permissions": [
     "tabs",
