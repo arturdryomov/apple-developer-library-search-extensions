@@ -10,6 +10,6 @@ clean-environment:
 	@rm -f ios/omnibox.js
 	@rm -f mac/omnibox.js
 
-clean-packages:
+clean-packages: clean-environment
 	@rm -f ios.zip
 	@rm -f mac.zip
