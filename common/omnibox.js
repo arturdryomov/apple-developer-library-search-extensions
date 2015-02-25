@@ -17,7 +17,6 @@
 
 var SUGGESTIONS_COUNT = 20;
 
-
 var suggestion = "Search" + " " + LIBRARY_NAME + " " + "for" + " " + highlightText("%s");
 
 
@@ -28,8 +27,22 @@ var LIBRARY = {
   library: "library.json"
 };
 
-
 var library = null;
+
+
+var LIBRARY_REQUEST = {
+  maximumRepeatCount: 10,
+
+  minimumDelay: 60,
+  maximumDelay: 3600,
+
+  minimumRandomFactor: 0.3,
+  maximumRandomFactor: 0.5
+};
+
+var LIBRARY_REQUEST_ALARM = "library-request";
+
+var libraryRequestRepeatCount = 0;
 
 
 function highlightText(text) {
@@ -50,15 +63,70 @@ function downloadLibrary() {
   var libraryRequest = new XMLHttpRequest();
 
   libraryRequest.onreadystatechange = function() {
-    if ((this.readyState == this.DONE) && (this.status == 200)) {
+    if (this.readyState != this.DONE) {
+      return;
+    }
+
+    if (this.status == 200) {
+      libraryRequestRepeatCount = 0;
+
       library = JSON.parse(this.responseText);
 
       openLibrary();
+    } else {
+      if (libraryRequestRepeatCount > LIBRARY_REQUEST.maximumRepeatCount) {
+        return;
+      }
+
+      libraryRequestRepeatCount++;
+
+      scheduleDownloadLibrary();
     }
   };
 
   libraryRequest.open("GET", LIBRARY_LOCATION + LIBRARY.navigation + LIBRARY.library);
   libraryRequest.send();
+}
+
+
+function scheduleDownloadLibrary() {
+  chrome.alarms.clear(LIBRARY_REQUEST_ALARM);
+  chrome.alarms.create(LIBRARY_REQUEST_ALARM, {
+    delayInMinutes: calculateMinutes(calculateLibraryRequestDelay())
+  });
+
+  chrome.alarms.onAlarm.removeListener(alarmListener);
+  chrome.alarms.onAlarm.addListener(alarmListener);
+}
+
+
+function alarmListener(alarm) {
+  if (!alarm) {
+    return;
+  }
+
+  if (alarm.name == LIBRARY_REQUEST_ALARM) {
+    downloadLibrary();
+  }
+}
+
+
+function calculateMinutes(seconds) {
+  return seconds / 60;
+}
+
+
+function calculateLibraryRequestDelay() {
+  var requestRandomFactor = generateRandomNumber(LIBRARY_REQUEST.minimumRandomFactor, LIBRARY_REQUEST.maximumRandomFactor);
+  var requestMultiplier = requestRandomFactor * Math.pow(2, libraryRequestRepeatCount);
+  var requestDelay = Math.min(Math.floor(requestMultiplier * LIBRARY_REQUEST.minimumDelay), LIBRARY_REQUEST.maximumDelay);
+
+  return requestDelay;
+}
+
+
+function generateRandomNumber(minimumNumber, maximumNumber) {
+  return Math.random() * (maximumNumber - minimumNumber) + minimumNumber;
 }
 
 
