@@ -100,17 +100,6 @@ function scheduleDownloadLibrary() {
 }
 
 
-function alarmListener(alarm) {
-  if (!alarm) {
-    return;
-  }
-
-  if (alarm.name == LIBRARY_REQUEST_ALARM) {
-    downloadLibrary();
-  }
-}
-
-
 function calculateMinutes(seconds) {
   return seconds / 60;
 }
@@ -127,6 +116,17 @@ function calculateLibraryRequestDelay() {
 
 function generateRandomNumber(minimumNumber, maximumNumber) {
   return Math.random() * (maximumNumber - minimumNumber) + minimumNumber;
+}
+
+
+function alarmListener(alarm) {
+  if (!alarm) {
+    return;
+  }
+
+  if (alarm.name == LIBRARY_REQUEST_ALARM) {
+    downloadLibrary();
+  }
 }
 
 
