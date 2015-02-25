@@ -3,7 +3,7 @@
 
   "name": "iOS Developer Library Search",
   "description": "Adds an “id” omnibox command for the iOS Developer Library.",
-  "version": "0.2.0",
+  "version": "0.3.0",
 
   "permissions": [
     "alarms",
