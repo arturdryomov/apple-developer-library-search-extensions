@@ -6,6 +6,7 @@
   "version": "0.2.0",
 
   "permissions": [
+    "alarms",
     "tabs",
     "https://developer.apple.com/library/mac/*/"
   ],
